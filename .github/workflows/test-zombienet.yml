@@ -15,22 +15,23 @@ jobs:
   test-zombienet:
     runs-on: ubuntu-latest
     env:
-      POLKADOT_VERSION: stable2407
+      POLKADOT_VERSION: stable2503
     steps:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/free-disk-space
       - uses: ./.github/actions/ubuntu-dependencies
 
-      - name: Build the node individually in release mode
-        run: cargo build --package parachain-template-node --release
+      - name: Build the runtime
+        run: cargo build --package parachain-template-runtime --release
         timeout-minutes: 90
 
-      - name: Download relaychain binaries
+      - name: Download relaychain and omni-node binaries
         run: |
           wget --no-verbose https://github.com/paritytech/polkadot-sdk/releases/download/polkadot-${{ env.POLKADOT_VERSION }}/polkadot
           wget --no-verbose https://github.com/paritytech/polkadot-sdk/releases/download/polkadot-${{ env.POLKADOT_VERSION }}/polkadot-prepare-worker
           wget --no-verbose https://github.com/paritytech/polkadot-sdk/releases/download/polkadot-${{ env.POLKADOT_VERSION }}/polkadot-execute-worker
+          wget --no-verbose https://github.com/paritytech/polkadot-sdk/releases/download/polkadot-${{ env.POLKADOT_VERSION }}/polkadot-omni-node
           chmod +x ./polkadot*
         working-directory: ./target/release
 

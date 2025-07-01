@@ -1,1 +1,17 @@
 target/
+
+# Binaries
+polkadot-omni-node
+polkadot-parachain
+parachain-template-node
+
+# Chain specs (keep template, ignore generated)
+*_chain_spec_raw.json
+production_chain_spec*.json
+
+# Logs
+*.log
+logs/
+
+# Backup files
+backup-*.tar.gz

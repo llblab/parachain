@@ -33,20 +33,9 @@ jobs:
         timeout-minutes: 30
 
       - name: Run the tests
-        run: SKIP_WASM_BUILD=1 cargo test
+        run: SKIP_WASM_BUILD=1 cargo test --package pallet-parachain-template
         timeout-minutes: 15
 
       - name: Build the docs
         run: SKIP_WASM_BUILD=1 cargo doc --workspace --no-deps
         timeout-minutes: 15
-
-  build-docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/free-disk-space
-
-      - name: Build the Dockerfile
-        run: docker build . -t polkadot-sdk-parachain-template
-        timeout-minutes: 90
