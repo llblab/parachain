@@ -1,4 +1,6 @@
 mod assets_config;
+mod dex_router_config;
+
 mod xcm_config;
 
 use polkadot_sdk::{staging_parachain_info as parachain_info, staging_xcm as xcm, *};
@@ -42,6 +44,7 @@ use super::{
   MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, NORMAL_DISPATCH_RATIO, SLOT_DURATION, VERSION,
 };
 pub use assets_config::{AssetId, AssetKind};
+
 use xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin};
 
 parameter_types! {
@@ -291,10 +294,4 @@ impl pallet_collator_selection::Config for Runtime {
   type ValidatorIdOf = pallet_collator_selection::IdentityCollator;
   type ValidatorRegistration = Session;
   type WeightInfo = ();
-}
-
-/// Configure the pallet template in pallets/template.
-impl pallet_parachain_template::Config for Runtime {
-  type RuntimeEvent = RuntimeEvent;
-  type WeightInfo = pallet_parachain_template::weights::SubstrateWeight<Runtime>;
 }

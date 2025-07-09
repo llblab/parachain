@@ -1,3 +1,4 @@
-//! Runtime integration tests for the parachain template.
+//! Runtime integration tests for the parachain.
 
-mod dex_integration_tests;
+pub mod dex_integration_tests;
+pub mod dex_router_integration_tests;

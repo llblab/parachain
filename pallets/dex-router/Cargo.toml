@@ -1,0 +1,38 @@
+[package]
+name = "pallet-dex-router"
+version = "0.1.0"
+description = "Trait-based DEX router with built-in fees for parachain runtime"
+authors = ["Parachain Team"]
+homepage = "https://substrate.io"
+edition = "2021"
+license = "MIT-0"
+publish = false
+repository = "https://github.com/paritytech/polkadot-sdk/"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+codec = { workspace = true }
+scale-info = { workspace = true }
+frame = { workspace = true, features = ["runtime"] }
+polkadot-sdk = { workspace = true, default-features = false, features = [
+    "pallet-asset-conversion",
+    "pallet-balances",
+] }
+
+[dev-dependencies]
+polkadot-sdk = { workspace = true, features = [
+    "sp-core",
+    "sp-io",
+    "sp-runtime",
+] }
+
+[features]
+default = ["std"]
+std = ["codec/std", "frame/std", "polkadot-sdk/std", "scale-info/std"]
+runtime-benchmarks = [
+    "frame/runtime-benchmarks",
+    "polkadot-sdk/runtime-benchmarks",
+]
+try-runtime = ["frame/try-runtime", "polkadot-sdk/try-runtime"]

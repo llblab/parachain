@@ -19,7 +19,7 @@ extern crate alloc;
 use alloc::vec::Vec;
 use smallvec::smallvec;
 
-use polkadot_sdk::{staging_parachain_info as parachain_info, *};
+use polkadot_sdk::{frame_support::construct_runtime, staging_parachain_info as parachain_info, *};
 
 use sp_runtime::{
   generic, impl_opaque_keys,
@@ -77,20 +77,17 @@ pub type BlockId = generic::BlockId<Block>;
 
 /// The extension to the basic transaction logic.
 #[docify::export(template_signed_extra)]
-pub type TxExtension = cumulus_pallet_weight_reclaim::StorageWeightReclaim<
-  Runtime,
-  (
-    frame_system::CheckNonZeroSender<Runtime>,
-    frame_system::CheckSpecVersion<Runtime>,
-    frame_system::CheckTxVersion<Runtime>,
-    frame_system::CheckGenesis<Runtime>,
-    frame_system::CheckEra<Runtime>,
-    frame_system::CheckNonce<Runtime>,
-    frame_system::CheckWeight<Runtime>,
-    pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
-    frame_metadata_hash_extension::CheckMetadataHash<Runtime>,
-  ),
->;
+pub type TxExtension = (
+  frame_system::CheckNonZeroSender<Runtime>,
+  frame_system::CheckSpecVersion<Runtime>,
+  frame_system::CheckTxVersion<Runtime>,
+  frame_system::CheckGenesis<Runtime>,
+  frame_system::CheckEra<Runtime>,
+  frame_system::CheckNonce<Runtime>,
+  frame_system::CheckWeight<Runtime>,
+  pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
+  frame_metadata_hash_extension::CheckMetadataHash<Runtime>,
+);
 
 /// Unchecked extrinsic type as expected by this runtime.
 pub type UncheckedExtrinsic =
@@ -101,16 +98,6 @@ pub type UncheckedExtrinsic =
 /// This can be a tuple of types, each implementing `OnRuntimeUpgrade`.
 #[allow(unused_parens)]
 type Migrations = ();
-
-/// Executive: handles dispatch to the various modules.
-pub type Executive = frame_executive::Executive<
-  Runtime,
-  Block,
-  frame_system::ChainContext<Runtime>,
-  Runtime,
-  AllPalletsWithSystem,
-  Migrations,
->;
 
 /// Handles converting a weight scalar to a fee value, based on the scale and granularity of the
 /// node's balance type.
@@ -255,79 +242,57 @@ pub fn native_version() -> NativeVersion {
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
-#[frame_support::runtime]
-mod runtime {
-  #[runtime::runtime]
-  #[runtime::derive(
-    RuntimeCall,
-    RuntimeEvent,
-    RuntimeError,
-    RuntimeOrigin,
-    RuntimeFreezeReason,
-    RuntimeHoldReason,
-    RuntimeSlashReason,
-    RuntimeLockId,
-    RuntimeTask,
-    RuntimeViewFunction
-  )]
-  pub struct Runtime;
+construct_runtime!(
+  pub enum Runtime {
+    // System support stuff.
+    System: frame_system = 0,
+    ParachainSystem: cumulus_pallet_parachain_system = 1,
+    Timestamp: pallet_timestamp = 2,
+    ParachainInfo: parachain_info = 3,
+    WeightReclaim: cumulus_pallet_weight_reclaim = 4,
 
-  #[runtime::pallet_index(0)]
-  pub type System = frame_system;
-  #[runtime::pallet_index(1)]
-  pub type ParachainSystem = cumulus_pallet_parachain_system;
-  #[runtime::pallet_index(2)]
-  pub type Timestamp = pallet_timestamp;
-  #[runtime::pallet_index(3)]
-  pub type ParachainInfo = parachain_info;
-  #[runtime::pallet_index(4)]
-  pub type WeightReclaim = cumulus_pallet_weight_reclaim;
+    // Monetary stuff.
+    Balances: pallet_balances = 10,
+    TransactionPayment: pallet_transaction_payment = 11,
 
-  // Monetary stuff.
-  #[runtime::pallet_index(10)]
-  pub type Balances = pallet_balances;
-  #[runtime::pallet_index(11)]
-  pub type TransactionPayment = pallet_transaction_payment;
+    // Assets for fungible tokens
+    Assets: pallet_assets = 12,
+    AssetConversion: pallet_asset_conversion = 13,
+    DexRouter: pallet_dex_router = 14,
 
-  // Assets for fungible tokens
-  #[runtime::pallet_index(12)]
-  pub type Assets = pallet_assets;
-  #[runtime::pallet_index(13)]
-  pub type AssetConversion = pallet_asset_conversion;
+    // Governance
+    Sudo: pallet_sudo = 15,
 
-  // Governance
-  #[runtime::pallet_index(15)]
-  pub type Sudo = pallet_sudo;
+    // Collator support. The order of these 4 are important and shall not change.
+    Authorship: pallet_authorship = 20,
+    CollatorSelection: pallet_collator_selection = 21,
+    Session: pallet_session = 22,
+    Aura: pallet_aura = 23,
+    AuraExt: cumulus_pallet_aura_ext = 24,
 
-  // Collator support. The order of these 4 are important and shall not change.
-  #[runtime::pallet_index(20)]
-  pub type Authorship = pallet_authorship;
-  #[runtime::pallet_index(21)]
-  pub type CollatorSelection = pallet_collator_selection;
-  #[runtime::pallet_index(22)]
-  pub type Session = pallet_session;
-  #[runtime::pallet_index(23)]
-  pub type Aura = pallet_aura;
-  #[runtime::pallet_index(24)]
-  pub type AuraExt = cumulus_pallet_aura_ext;
+    // XCM helpers.
+    XcmpQueue: cumulus_pallet_xcmp_queue = 30,
+    PolkadotXcm: pallet_xcm = 31,
+    CumulusXcm: cumulus_pallet_xcm = 32,
+    MessageQueue: pallet_message_queue = 33,
+  }
+);
 
-  // XCM helpers.
-  #[runtime::pallet_index(30)]
-  pub type XcmpQueue = cumulus_pallet_xcmp_queue;
-  #[runtime::pallet_index(31)]
-  pub type PolkadotXcm = pallet_xcm;
-  #[runtime::pallet_index(32)]
-  pub type CumulusXcm = cumulus_pallet_xcm;
-  #[runtime::pallet_index(33)]
-  pub type MessageQueue = pallet_message_queue;
+// Runtime is already exported by construct_runtime! macro - no need to re-export
+// The types RuntimeCall, RuntimeEvent, RuntimeOrigin, etc. are also generated by the macro
 
-  // Template
-  #[runtime::pallet_index(50)]
-  pub type TemplatePallet = pallet_parachain_template;
-}
+/// Executive: handles dispatch to the various modules.
+pub type Executive = frame_executive::Executive<
+  Runtime,
+  Block,
+  frame_system::ChainContext<Runtime>,
+  Runtime,
+  AllPalletsWithSystem,
+  Migrations,
+>;
 
 #[docify::export(register_validate_block)]
 cumulus_pallet_parachain_system::register_validate_block! {
-    Runtime = Runtime,
-    BlockExecutor = cumulus_pallet_aura_ext::BlockExecutor::<Runtime, Executive>,
+  Runtime = Runtime,
+  BlockExecutor = cumulus_pallet_aura_ext::BlockExecutor::<Runtime, Executive>,
 }

@@ -1,10 +1,11 @@
 use crate::{
-  AccountId, AllPalletsWithSystem, Balances, ParachainInfo, ParachainSystem, PolkadotXcm, Runtime,
-  RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
+  AccountId, AllPalletsWithSystem, Balances, ParachainSystem, PolkadotXcm, Runtime, RuntimeCall,
+  RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
 };
 
 use polkadot_sdk::{
-  staging_xcm as xcm, staging_xcm_builder as xcm_builder, staging_xcm_executor as xcm_executor, *,
+  staging_parachain_info as parachain_info, staging_xcm as xcm, staging_xcm_builder as xcm_builder,
+  staging_xcm_executor as xcm_executor, *,
 };
 
 use frame_support::{
@@ -37,7 +38,7 @@ parameter_types! {
   pub RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
   // For the real deployment, it is recommended to set `RelayNetwork` according to the relay chain
   // and prepend `UniversalLocation` with `GlobalConsensus(RelayNetwork::get())`.
-  pub UniversalLocation: InteriorLocation = Parachain(ParachainInfo::parachain_id().into()).into();
+  pub UniversalLocation: InteriorLocation = Parachain(parachain_info::Pallet::<Runtime>::parachain_id().into()).into();
 }
 
 /// Type for specifying how a `Location` can be converted into an `AccountId`. This is used

@@ -763,7 +763,7 @@ fn test_native_local_asset_pair() {
       Preservation::Expendable,
       Fortitude::Polite,
     );
-    println!("Reducible balance: {}", reducible_balance);
+    println!("Reducible balance: {reducible_balance}");
 
     // Add liquidity to Native-Local pool (use 75% to balance pool depth vs NotExpendable)
     let safe_liquidity_amount = (liquidity_amount * 3) / 4;
@@ -775,12 +775,12 @@ fn test_native_local_asset_pair() {
       (1, 1),
       &liquidity_provider,
     );
-    println!("Add liquidity result: {:?}", add_liquidity_result);
+    println!("Add liquidity result: {add_liquidity_result:?}");
     println!(
       "Liquidity provider balance: {}",
       Balances::free_balance(&liquidity_provider)
     );
-    println!("Liquidity amount: {}", liquidity_amount);
+    println!("Liquidity amount: {liquidity_amount}");
     assert_ok!(add_liquidity_result);
 
     // Test swap from Native to Local
@@ -788,9 +788,9 @@ fn test_native_local_asset_pair() {
     let initial_native_balance = Balances::free_balance(&trader);
 
     println!("Trader balances before swap:");
-    println!("  Native balance: {}", initial_native_balance);
-    println!("  Local asset balance: {}", initial_balance);
-    println!("  Swap amount: {}", swap_amount);
+    println!("  Native balance: {initial_native_balance}");
+    println!("  Local asset balance: {initial_balance}");
+    println!("  Swap amount: {swap_amount}");
 
     let swap_result = swap_exact_tokens_for_tokens(
       RuntimeOrigin::signed(trader.clone()),
@@ -800,7 +800,7 @@ fn test_native_local_asset_pair() {
       &trader,
       false,
     );
-    println!("Swap result: {:?}", swap_result);
+    println!("Swap result: {swap_result:?}");
     assert_ok!(swap_result);
 
     // Verify swap occurred
@@ -1098,11 +1098,11 @@ fn test_balance_requirements() {
 
     // Check initial balances
     let initial_balance = Balances::free_balance(&liquidity_provider);
-    println!("Initial balance: {}", initial_balance);
-    println!("Existential deposit: {}", EXISTENTIAL_DEPOSIT);
+    println!("Initial balance: {initial_balance}");
+    println!("Existential deposit: {EXISTENTIAL_DEPOSIT}");
     println!("Pool setup fee: {}", 10 * EXISTENTIAL_DEPOSIT);
-    println!("Min liquidity requirement: {}", EXISTENTIAL_DEPOSIT);
-    println!("Liquidity amount: {}", liquidity_amount);
+    println!("Min liquidity requirement: {EXISTENTIAL_DEPOSIT}");
+    println!("Liquidity amount: {liquidity_amount}");
 
     // Setup: Create local asset
     assert_ok!(create_test_asset(asset_id, &admin, EXISTENTIAL_DEPOSIT));
@@ -1122,11 +1122,11 @@ fn test_balance_requirements() {
 
     // Check that we have enough balance for the operation
     let available_balance = initial_balance.saturating_sub(EXISTENTIAL_DEPOSIT);
-    println!("Available balance (minus ED): {}", available_balance);
+    println!("Available balance (minus ED): {available_balance}");
 
     // Use proper minimum amounts that account for LP token ED
     let min_amounts = (EXISTENTIAL_DEPOSIT, EXISTENTIAL_DEPOSIT);
-    println!("Using minimum amounts: {:?}", min_amounts);
+    println!("Using minimum amounts: {min_amounts:?}");
 
     let result = add_liquidity(
       RuntimeOrigin::signed(liquidity_provider.clone()),
@@ -1137,12 +1137,12 @@ fn test_balance_requirements() {
       &liquidity_provider,
     );
 
-    println!("Add liquidity result: {:?}", result);
+    println!("Add liquidity result: {result:?}");
 
     if result.is_ok() {
       println!("SUCCESS: Liquidity added successfully!");
       let final_balance = Balances::free_balance(&liquidity_provider);
-      println!("Final balance: {}", final_balance);
+      println!("Final balance: {final_balance}");
       println!("Balance difference: {}", initial_balance - final_balance);
     } else {
       println!("FAILED: Error adding liquidity");
@@ -1205,17 +1205,14 @@ fn test_account_reference_counters() {
       Preservation::Expendable,
       Fortitude::Polite,
     );
-    println!("Reducible balance (expendable): {}", reducible_balance);
+    println!("Reducible balance (expendable): {reducible_balance}");
 
     let reducible_balance_keep_alive = <Balances as FungibleInspect<AccountId>>::reducible_balance(
       &liquidity_provider,
       Preservation::Preserve,
       Fortitude::Polite,
     );
-    println!(
-      "Reducible balance (preserve): {}",
-      reducible_balance_keep_alive
-    );
+    println!("Reducible balance (preserve): {reducible_balance_keep_alive}");
 
     // Now try to add liquidity and see what happens to reference counters
     println!("Attempting to add liquidity...");
@@ -1231,7 +1228,7 @@ fn test_account_reference_counters() {
       &liquidity_provider,
     );
 
-    println!("Add liquidity result: {:?}", result);
+    println!("Add liquidity result: {result:?}");
 
     // Check final account info
     let final_account_info = System::account(&liquidity_provider);

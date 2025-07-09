@@ -78,7 +78,7 @@ run_step "Clippy (Linting)" \
 
 # Step 3: Run tests
 run_step "Tests" \
-    "cargo test --package pallet-parachain-template" \
+    "cargo test --workspace" \
     "15"
 
 # Step 4: Build documentation
